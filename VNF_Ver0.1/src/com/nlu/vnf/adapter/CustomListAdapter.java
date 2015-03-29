@@ -13,8 +13,8 @@ import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
-import com.nlu.controller.AppController;
 import com.nlu.vnf.R;
+import com.nlu.vnf.controller.AppController;
 import com.nlu.vnf.model.Comments;
 import com.nlu.vnf.model.Dishes;
 import com.nlu.vnf.model.Location;
