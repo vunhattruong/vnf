@@ -143,10 +143,70 @@ CollectionDriver.prototype.query = function(collectionName, query, callback) { /
     this.getCollection(collectionName, function(error, the_collection) { //2
       if( error ) callback(error)
       else {
+    	  if( (query.dsh != null) && (query.lat == null) ){ // tim kiem dia diem theo ten mon an
+    		  
+    		  the_collection.find().toArray(function(error,results){
+      			 if(error) callback(error)
+      			 else{
+      				 //callback(null,results)
+      				 
+      				 var countdsh = 0; // biến đếm món ăn
+      				 
+      				 var resultJSONdsh = "["; // chuỗi json trả về địa điểm khi có món ăn
+      				 
+      				 for (var i = 0; i < results.length; i++) {
+      						
+      						if(query.dsh != null) // ktra xem có querystring dsh hay k?
+      							for (var j = 0; j < results[i].dishes.length; j++) {
+      								if(change_alias(results[i].dishes[j].name.toLowerCase()).search(change_alias(query.dsh.toLowerCase())) != -1 ){ // ham so sanh chuoi bi sai
+      									countdsh++;
+      									resultJSONdsh += JSON.stringify(results[i])+",";
+      								}
+      							}
+      					}
+  					}
+      				
+      				if(countdsh != 0){
+      					console.log(resultJSONdsh.substring(0,resultJSONdsh.length-1)+"]");
+      					callback(null,JSON.parse(resultJSONdsh.substring(0,resultJSONdsh.length-1)+"]"));
+         			}else {
+         				callback(null,"");
+         			}
+      				
+      			 
+      		  });
+    		  
+    	  }else if(query.locname != null){ // tim kiem dia diem theo ten dia diem
+    		  
+    		  the_collection.find().toArray(function(error,results){
+      			 if(error) callback(error)
+      			 else{
+      				 
+    				 var count = 0; // biến đếm địa điểm    				 
+    				 
+    				 var resultJSON = "["; // chuỗi json trả về địa điểm
+    				 
+    				 for (var i = 0; i < results.length; i++) {
+    					 if(change_alias(results[i].name.toLowerCase()).search(change_alias(query.locname.toLowerCase())) != -1 ){
+    						count++;
+							resultJSON += JSON.stringify(results[i])+",";
+    					 }
+    				 }
+    				 
+     				if(count != 0){
+     					console.log(resultJSON.substring(0,resultJSON.length-1)+"]");
+     					callback(null,JSON.parse(resultJSON.substring(0,resultJSON.length-1)+"]"));
+     				}else {
+     					callback(null,"");
+     				}
+     				
+      				 
+      			 }
+    		  });
     	  
-    	  
+    		  
     	  // Nếu là request lấy các dia diem gan do
-    	  if( (query.lat != null) && (query.lon != null) && (query.radius != null) ){
+      	  }else if( (query.lat != null) && (query.lon != null) && (query.radius != null) ){
     		  
     		  
     		  the_collection.find().toArray(function(error,results){
@@ -170,7 +230,7 @@ CollectionDriver.prototype.query = function(collectionName, query, callback) { /
      						
      						if(query.dsh != null){ // ktra xem có querystring dsh hay k?
      							for (var j = 0; j < results[i].dishes.length; j++) {
-     								if(change_alias(results[i].dishes[j].name.toLowerCase()) == change_alias(query.dsh.toLowerCase())){ // ham so sanh chuoi bi sai
+     								if(change_alias(results[i].dishes[j].name.toLowerCase()).search(change_alias(query.dsh.toLowerCase())) != -1 ){ // ham so sanh chuoi bi sai
      									countdsh++;
      									resultJSONdsh += JSON.stringify(results[i])+",";
      								}
@@ -182,8 +242,8 @@ CollectionDriver.prototype.query = function(collectionName, query, callback) { /
      				
      				 if(query.dsh != null ){ // truog hop co querystring dsh (món ăn)
      					 if(countdsh != 0){
-     						 console.log(resultJSON.substring(0,resultJSON.length-1)+"]");
-     						 callback(null,JSON.parse(resultJSON.substring(0,resultJSON.length-1)+"]"));
+     						 console.log(resultJSONdsh.substring(0,resultJSONdsh.length-1)+"]");
+     						 callback(null,JSON.parse(resultJSONdsh.substring(0,resultJSONdsh.length-1)+"]"));
         				  	}else {
         				  		 callback(null,"");
         				  	}

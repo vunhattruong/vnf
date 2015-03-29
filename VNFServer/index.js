@@ -79,8 +79,10 @@ function returnCollectionResults(req, res) {
         if (error) { res.send(400, error); }
 	        else { 
                     if (req.accepts('html')) { // 6
-                        res.render('data',{objects: objs, collection:
-						req.params.collection});
+//                      res.render('data',{objects: objs, collection:
+//						req.params.collection});
+                    	 res.set('Content-Type','application/json');
+                         res.send(200, objs);
                     } else {
                         res.set('Content-Type','application/json');
                         res.send(200, objs);
