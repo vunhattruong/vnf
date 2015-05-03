@@ -56,8 +56,9 @@ app.get('/:collection/:entity',function(req,res){
 		collectionDriver.get(collection,entity,function(error,objs){
 			if(error)
 				res.send(400,error);
-			else
+			else{
 				res.send(200,objs);
+			}
 		});
 	}else{
 		res.send(400,{error:'bad url',url:req.url});
@@ -79,10 +80,10 @@ function returnCollectionResults(req, res) {
         if (error) { res.send(400, error); }
 	        else { 
                     if (req.accepts('html')) { // 6
-//                      res.render('data',{objects: objs, collection:
-//						req.params.collection});
-                    	 res.set('Content-Type','application/json');
-                         res.send(200, objs);
+                        /*res.render('data',{objects: objs, collection:
+						req.params.collection});*/
+                    	//res.set('Content-Type','application/json');
+                        res.send(200, objs);
                     } else {
                         res.set('Content-Type','application/json');
                         res.send(200, objs);

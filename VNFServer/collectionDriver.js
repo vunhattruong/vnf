@@ -32,8 +32,9 @@ CollectionDriver.prototype.findAll = function(collectionName,callback){
 }
 
 // Get document from db by id
-// * Since ObjectID is a BSON type and not a JSON type, 
-// you�ll have to convert any incoming strings to ObjectIDs if they�re to be used when comparing against an �_id� field.
+// * Since ObjectID is a BSON type and not a JSON type,
+// you�ll have to convert any incoming strings to ObjectIDs if they�re to be
+// used when comparing against an �_id� field.
 CollectionDriver.prototype.get = function(collectionName,id,callback){
 	this.getCollection(collectionName,function(error,the_collection){
 		if(error)
@@ -55,7 +56,8 @@ CollectionDriver.prototype.save = function(collectionName,obj,callback){
 		if(error){
 			callback(error);
 		}else{
-			obj.created_at = new Date(); // add a field to the records the date it was created
+			obj.created_at = new Date(); // add a field to the records the
+											// date it was created
 			the_collection.insert(obj,function(){
 				callback(null,obj);
 			});
@@ -69,8 +71,12 @@ CollectionDriver.prototype.update = function(collectionName,obj,entityId,callbac
 			callback(error);
 		else{
 			obj._id = ObjectID(entityId); // convert to real object id
-			obj.updated_at = new Date(); // add fields update_at : data to object that have just been updated
-			the_collection.save(obj,function(error,doc){ // replace the old object with the new one
+			obj.updated_at = new Date(); // add fields update_at : data to
+											// object that have just been
+											// updated
+			the_collection.save(obj,function(error,doc){ // replace the old
+															// object with the
+															// new one
 				if(error)
 					callback(error);
 				else
@@ -95,7 +101,7 @@ CollectionDriver.prototype.delete = function(collectionName,entityId,callback){
 	});
 }
 
-//Calculate distance between 2 coordinates
+// Calculate distance between 2 coordinates
 function calDistance(lat1, lon1, lat2, lon2) {
 	/** Converts numeric degrees to radians */
 	if (typeof (Number.prototype.toRad) === "undefined") {
@@ -131,34 +137,56 @@ function change_alias( alias )
     str= str.replace(/đ/g,"d"); 
     str= str.replace(/!|@|%|\^|\*|\(|\)|\+|\=|\<|\>|\?|\/|,|\.|\:|\;|\'| |\"|\&|\#|\[|\]|~|$|_/g,"-");
     /* tìm và thay thế các kí tự đặc biệt trong chuỗi sang kí tự - */
-    str= str.replace(/-+-/g,"-"); //thay thế 2- thành 1-
+    str= str.replace(/-+-/g,"-"); // thay thế 2- thành 1-
     str= str.replace(/^\-+|\-+$/g,""); 
-    //cắt bỏ ký tự - ở đầu và cuối chuỗi 
+    // cắt bỏ ký tự - ở đầu và cuối chuỗi
     return str;
 }
 
-//Perform a collection query
-CollectionDriver.prototype.query = function(collectionName, query, callback) { //1
+function check_date(dateFrom,dateTo,dateCheck){
+	// var dateFrom = "01/10/2014";
+	// var dateTo = "02/01/2015";
+	// var dateCheck = "05/01/2015";
+
+	var d1 = dateFrom.split("/");
+	var d2 = dateTo.split("/");
+	var c = dateCheck.split("/");
+
+	var from = new Date(d1[2], d1[1]-1, d1[0]);  // -1 because months are
+													// from 0 to 11
+	var to   = new Date(d2[2], d2[1]-1, d2[0]);
+	var check = new Date(c[2], c[1]-1, c[0]);
+
+	return (check > from && check < to);
+}
+
+// Perform a collection query
+CollectionDriver.prototype.query = function(collectionName, query, callback) { // 1
 	
-    this.getCollection(collectionName, function(error, the_collection) { //2
+    this.getCollection(collectionName, function(error, the_collection) { // 2
       if( error ) callback(error)
       else {
-    	  if( (query.dsh != null) && (query.lat == null) ){ // tim kiem dia diem theo ten mon an
+    	  if( (query.dsh != null) && (query.lat == null) ){ // tim kiem dia diem
+															// theo ten mon an
     		  
     		  the_collection.find().toArray(function(error,results){
       			 if(error) callback(error)
       			 else{
-      				 //callback(null,results)
+      				 // callback(null,results)
       				 
       				 var countdsh = 0; // biến đếm món ăn
       				 
-      				 var resultJSONdsh = "["; // chuỗi json trả về địa điểm khi có món ăn
+      				 var resultJSONdsh = "["; // chuỗi json trả về địa điểm
+												// khi có món ăn
       				 
       				 for (var i = 0; i < results.length; i++) {
       						
-      						if(query.dsh != null) // ktra xem có querystring dsh hay k?
+      						if(query.dsh != null) // ktra xem có querystring
+													// dsh hay k?
       							for (var j = 0; j < results[i].dishes.length; j++) {
-      								if(change_alias(results[i].dishes[j].name.toLowerCase()).search(change_alias(query.dsh.toLowerCase())) != -1 ){ // ham so sanh chuoi bi sai
+      								if(change_alias(results[i].dishes[j].name.toLowerCase()).search(change_alias(query.dsh.toLowerCase())) != -1 ){ // ham
+																																					// so
+																																																																// sai
       									countdsh++;
       									resultJSONdsh += JSON.stringify(results[i])+",";
       								}
@@ -176,13 +204,14 @@ CollectionDriver.prototype.query = function(collectionName, query, callback) { /
       			 
       		  });
     		  
-    	  }else if(query.locname != null){ // tim kiem dia diem theo ten dia diem
+    	  }else if(query.locname != null){ // tim kiem dia diem theo ten dia
+											// diem
     		  
     		  the_collection.find().toArray(function(error,results){
       			 if(error) callback(error)
       			 else{
       				 
-    				 var count = 0; // biến đếm địa điểm    				 
+    				 var count = 0; // biến đếm địa điểm
     				 
     				 var resultJSON = "["; // chuỗi json trả về địa điểm
     				 
@@ -212,13 +241,14 @@ CollectionDriver.prototype.query = function(collectionName, query, callback) { /
     		  the_collection.find().toArray(function(error,results){
      			 if(error) callback(error)
      			 else{
-     				 //callback(null,results)
+     				 // callback(null,results)
      				 
      				 var countdsh = 0; // biến đếm món ăn
-     				 var count = 0; // biến đếm địa điểm    				 
+     				 var count = 0; // biến đếm địa điểm
      				 
      				 var resultJSON = "["; // chuỗi json trả về địa điểm
-     				 var resultJSONdsh = "["; // chuỗi json trả về địa điểm khi có món ăn
+     				 var resultJSONdsh = "["; // chuỗi json trả về địa điểm
+												// khi có món ăn
      				 
      				 for (var i = 0; i < results.length; i++) {
      					var result = calDistance(parseFloat(query.lat), parseFloat(query.lon),
@@ -228,9 +258,15 @@ CollectionDriver.prototype.query = function(collectionName, query, callback) { /
      						console.log(results[i].name + " : " + result);
      						resultJSON += JSON.stringify(results[i])+",";
      						
-     						if(query.dsh != null){ // ktra xem có querystring dsh hay k?
+     						if(query.dsh != null){ // ktra xem có querystring
+													// dsh hay k?
      							for (var j = 0; j < results[i].dishes.length; j++) {
-     								if(change_alias(results[i].dishes[j].name.toLowerCase()).search(change_alias(query.dsh.toLowerCase())) != -1 ){ // ham so sanh chuoi bi sai
+     								if(change_alias(results[i].dishes[j].name.toLowerCase()).search(change_alias(query.dsh.toLowerCase())) != -1 ){ // ham
+																																					// so
+																																					// sanh
+																																					// chuoi
+																																					// bi
+																																					// sai
      									countdsh++;
      									resultJSONdsh += JSON.stringify(results[i])+",";
      								}
@@ -240,7 +276,8 @@ CollectionDriver.prototype.query = function(collectionName, query, callback) { /
      					}
  					}
      				
-     				 if(query.dsh != null ){ // truog hop co querystring dsh (món ăn)
+     				 if(query.dsh != null ){ // truog hop co querystring dsh
+												// (món ăn)
      					 if(countdsh != 0){
      						 console.log(resultJSONdsh.substring(0,resultJSONdsh.length-1)+"]");
      						 callback(null,JSON.parse(resultJSONdsh.substring(0,resultJSONdsh.length-1)+"]"));
@@ -261,9 +298,10 @@ CollectionDriver.prototype.query = function(collectionName, query, callback) { /
      		  });
     		  
     		  
-    	  }else if(query.dsh != null){ // query string : dsh -> get locs by dsh name
+    	  }else if(query.dsh != null){ // query string : dsh -> get locs by dsh
+										// name
     		  
-    		  the_collection.find().toArray(function(error, results) { //3
+    		  the_collection.find().toArray(function(error, results) { // 3
     			  if( error ) callback(error);
     			  else{ 
     				  var resultJSON = "[";
@@ -272,7 +310,12 @@ CollectionDriver.prototype.query = function(collectionName, query, callback) { /
     				  // GET LOCS BY FOOD
     				  for (var i = 0; i < results.length; i++) {
     					  for (var j = 0; j < results[i].dishes.length; j++) {
-    						  if(results[i].dishes[j].name.toLowerCase() == query.dsh.toLowerCase()){ // ham so sanh chuoi bi sai
+    						  if(results[i].dishes[j].name.toLowerCase() == query.dsh.toLowerCase()){ // ham
+																										// so
+																										// sanh
+																										// chuoi
+																										// bi
+																										// sai
     							  count++;
     							  resultJSON += JSON.stringify(results[i])+",";
     						  }
@@ -290,72 +333,128 @@ CollectionDriver.prototype.query = function(collectionName, query, callback) { /
     		  });
     		  
 			  
+    	  }else if( (query.usr != null) && (query.cmt != null) && (query.id != null) ){
+    		  the_collection.find().toArray(function(error, results) { // 3
+    			  if( error ) callback(error)
+    			  else{ 
+    				  callback(null,results);
+    				  var obj;
+    				  var text = '{ "'+query.usr+'" : "'+query.cmt+'" }';
+    				  for (var i = 0; i < results.length; i++) {
+    					  if(results[i]._id == query.id){ 
+    						  obj = results[i];
+    						  break;
+    					  }
+    				  }
+    				  // obj._id = results[0]._id; // convert to real object
+						// id
+    				  // var text = '{ "'+query.usr+'" : "'+cmt+'" }';
+    				  // console.log(text);
+    				  obj.comments.push(JSON.parse(text));
+    				  console.log(obj.name);
+    				  the_collection.save(obj,function(error,doc){ // replace
+																	// the old
+																	// object
+																	// with the
+																	// new one
+    						if(error)
+    							callback(error);
+    						else
+    							callback(null,obj);
+    				  });
+    			  }
+    		  });
+    	  }else if(query.date != null){ // lấy news
+    		  
+    		  the_collection.find().toArray(function(error,results){
+       			 if(error) callback(error)
+       			 else{
+       				 
+       				 var countdsh = 0; // biến đếm món ăn
+       				 
+       				 var resultJSONdsh = "["; // chuỗi json trả về địa điểm
+ 												// khi có món ăn
+       				 
+       				 for (var i = 0; i < results.length; i++) {
+       					 if(check_date(results[i].datestart, results[i].dateend ,query.date)){ // ham
+       						 countdsh++;
+       						 resultJSONdsh += JSON.stringify(results[i])+",";
+       					 }
+       				 }
+       				 
+   				}
+       				
+       			if(countdsh != 0){
+       				callback(null,JSON.parse(resultJSONdsh.substring(0,resultJSONdsh.length-1)+"]"));
+          		}else {
+          			callback(null,"");
+          		}
+       				
+       		  });
+    		  
     	  }else if(query.test != null){ // Test database
     		  
-    		  the_collection.find().toArray(function(error, results) { //3
+    		  the_collection.find().toArray(function(error, results) { // 3
     			  if( error ) callback(error)
     			  else{ 
     				  callback(null,results);
     				  
     				  // GET ARRAY ELEMENTS
-    				  /*console.log(JSON.stringify(results[0].name));
-    				  console.log(JSON.stringify(results[0].location.lat));
-    				  console.log(JSON.stringify(results[0].location.lon));
-    				  console.log(JSON.stringify(results[0].comments[0].username));
-    				  console.log(JSON.stringify(results[0].comments[0].detail));*/
+    				  /*
+						 * console.log(JSON.stringify(results[0].name));
+						 * console.log(JSON.stringify(results[0].location.lat));
+						 * console.log(JSON.stringify(results[0].location.lon));
+						 * console.log(JSON.stringify(results[0].comments[0].username));
+						 * console.log(JSON.stringify(results[0].comments[0].detail));
+						 */
     				  
-    				  /*results[0].comments.push("{test:test}");
-    				  console.log(JSON.stringify(results[0].comments));
-    				  */
+    				  /*
+						 * results[0].comments.push("{test:test}");
+						 * console.log(JSON.stringify(results[0].comments));
+						 */
     				  
     				  // INSERT ARRAY ELEMENTS
-    				  /*var obj = results[0];
-    				  obj._id = results[0]._id; // convert to real object id
-    				  var text = '{ "employees" : "test" }';
-    				  obj.comments.push(JSON.parse(text));
-    				  the_collection.save(obj,function(error,doc){ // replace the old object with the new one
-    						if(error)
-    							callback(error);
-    						else
-    							callback(null,obj);
-    				  });*/
+    				  /*
+						 * var obj = results[0]; obj._id = results[0]._id; //
+						 * convert to real object id var text = '{ "employees" :
+						 * "test" }'; obj.comments.push(JSON.parse(text));
+						 * the_collection.save(obj,function(error,doc){ //
+						 * replace the old object with the new one if(error)
+						 * callback(error); else callback(null,obj); });
+						 */
     				  
     				  // UPDATE ARRAY ELEMENTS
-    				  /*var obj = results[0];
-    				  obj._id = results[0]._id; // convert to real object id
-    				  var text = '{ "employees" : "test" }';
-    				  obj.comments[0] = JSON.parse(text);
-    				  the_collection.save(obj,function(error,doc){ // replace the old object with the new one
-    						if(error)
-    							callback(error);
-    						else
-    							callback(null,obj);
-    				  });*/
+    				  /*
+						 * var obj = results[0]; obj._id = results[0]._id; //
+						 * convert to real object id var text = '{ "employees" :
+						 * "test" }'; obj.comments[0] = JSON.parse(text);
+						 * the_collection.save(obj,function(error,doc){ //
+						 * replace the old object with the new one if(error)
+						 * callback(error); else callback(null,obj); });
+						 */
     				  
     				  // DELETE ARRAY ELEMENTS
-    				 /* var obj = results[0];
-    				  obj._id = results[0]._id; // convert to real object id
-    				  var text = '{ "employees" : "test" }';
-    				  obj.comments.splice(0,1);
-    				  the_collection.save(obj,function(error,doc){ // replace the old object with the new one
-    						if(error)
-    							callback(error);
-    						else
-    							callback(null,obj);
-    				  });*/
+    				 /*
+						 * var obj = results[0]; obj._id = results[0]._id; //
+						 * convert to real object id var text = '{ "employees" :
+						 * "test" }'; obj.comments.splice(0,1);
+						 * the_collection.save(obj,function(error,doc){ //
+						 * replace the old object with the new one if(error)
+						 * callback(error); else callback(null,obj); });
+						 */
     					
     			  }
         	  });
     		  
-    		  /*collection.find(query).toArray(function(error, results) { //3
-          		if( error ) callback(error)
-          		else callback(null, results)
-          	  });*/
+    		  /*
+				 * collection.find(query).toArray(function(error, results) { //3
+				 * if( error ) callback(error) else callback(null, results) });
+				 */
     		  
     		  
     	  } else{ // Nếu là request lấy tất cả (k có query)
     		  console.log(query);
-    		  the_collection.find(query).toArray(function(error, results) { //3
+    		  the_collection.find(query).toArray(function(error, results) { // 3
         		if( error ) callback(error)
         		else callback(null, results)
         	  });
@@ -366,5 +465,6 @@ CollectionDriver.prototype.query = function(collectionName, query, callback) { /
     });
 };
 
-// This line declares the exposed, or exported, entities to other applications that list collectionDriver.js as a required module.
+// This line declares the exposed, or exported, entities to other applications
+// that list collectionDriver.js as a required module.
 exports.CollectionDriver = CollectionDriver;
